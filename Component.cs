@@ -319,7 +319,15 @@ namespace LiveSplit.UI.Components
                     _state.SetGameTime(gt);
                 }
             }
-            _model.Split();
+
+         await Task.Delay(TimeSpan.FromSeconds(_settings.DelaySec));
+         _model.Split();
+        }
+
+        private async Task DoStart()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(_settings.DelaySec));
+            _model.Start();
         }
 
         private async void UpdateSplitsWrapper()
@@ -368,7 +376,7 @@ namespace LiveSplit.UI.Components
                     {
                         if (await doCheckSplitWithNext(_settings.Config.autostart.GetSplit()))
                         {
-                            _model.Start();
+                            await DoStart();
                         }
                     }
                 }

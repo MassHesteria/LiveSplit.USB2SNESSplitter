@@ -39,6 +39,9 @@
             System.Windows.Forms.Panel resetPanel;
             System.Windows.Forms.Panel statusPanel;
             System.Windows.Forms.GroupBox splitsGroup;
+            System.Windows.Forms.Panel delayPanel;
+            System.Windows.Forms.Label lblDelay;
+            System.Windows.Forms.Label lblDelayUnits;
             this.txtDevice = new System.Windows.Forms.TextBox();
             this.txtConfigFile = new System.Windows.Forms.TextBox();
             this.chkReset = new System.Windows.Forms.CheckBox();
@@ -47,6 +50,7 @@
             this.errorIcon = new System.Windows.Forms.PictureBox();
             this.errorMessage = new System.Windows.Forms.Label();
             this.splitsPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.txtDelaySec = new System.Windows.Forms.TextBox();
             lblDevice = new System.Windows.Forms.Label();
             lblConfig = new System.Windows.Forms.Label();
             btnBrowse = new System.Windows.Forms.Button();
@@ -58,6 +62,9 @@
             resetPanel = new System.Windows.Forms.Panel();
             statusPanel = new System.Windows.Forms.Panel();
             splitsGroup = new System.Windows.Forms.GroupBox();
+            delayPanel = new System.Windows.Forms.Panel();
+            lblDelay = new System.Windows.Forms.Label();
+            lblDelayUnits = new System.Windows.Forms.Label();
             mainPanel.SuspendLayout();
             topPanel.SuspendLayout();
             devicePanel.SuspendLayout();
@@ -67,6 +74,7 @@
             this.errorPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorIcon)).BeginInit();
             splitsGroup.SuspendLayout();
+            delayPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblDevice
@@ -125,7 +133,7 @@
             mainPanel.RowCount = 2;
             mainPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             mainPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            mainPanel.Size = new System.Drawing.Size(462, 179);
+            mainPanel.Size = new System.Drawing.Size(462, 182);
             mainPanel.TabIndex = 8;
             // 
             // topPanel
@@ -134,13 +142,13 @@
             topPanel.Controls.Add(devicePanel);
             topPanel.Controls.Add(configPanel);
             topPanel.Controls.Add(resetPanel);
-            topPanel.Controls.Add(statusPanel);
+            topPanel.Controls.Add(delayPanel);
             topPanel.Controls.Add(this.errorPanel);
             topPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             topPanel.Location = new System.Drawing.Point(0, 0);
             topPanel.Margin = new System.Windows.Forms.Padding(0);
             topPanel.Name = "topPanel";
-            topPanel.Size = new System.Drawing.Size(446, 147);
+            topPanel.Size = new System.Drawing.Size(446, 150);
             topPanel.TabIndex = 0;
             // 
             // devicePanel
@@ -186,10 +194,11 @@
             // 
             resetPanel.AutoSize = true;
             resetPanel.Controls.Add(this.chkReset);
+            resetPanel.Controls.Add(statusPanel);
             resetPanel.Location = new System.Drawing.Point(0, 57);
             resetPanel.Margin = new System.Windows.Forms.Padding(0);
             resetPanel.Name = "resetPanel";
-            resetPanel.Size = new System.Drawing.Size(225, 23);
+            resetPanel.Size = new System.Drawing.Size(426, 23);
             resetPanel.TabIndex = 7;
             // 
             // chkReset
@@ -206,7 +215,7 @@
             // 
             statusPanel.AutoSize = true;
             statusPanel.Controls.Add(this.chkStatus);
-            statusPanel.Location = new System.Drawing.Point(0, 80);
+            statusPanel.Location = new System.Drawing.Point(225, 0);
             statusPanel.Margin = new System.Windows.Forms.Padding(0);
             statusPanel.Name = "statusPanel";
             statusPanel.Size = new System.Drawing.Size(201, 23);
@@ -215,7 +224,7 @@
             // chkStatus
             // 
             this.chkStatus.AutoSize = true;
-            this.chkStatus.Location = new System.Drawing.Point(66, 3);
+            this.chkStatus.Location = new System.Drawing.Point(50, 3);
             this.chkStatus.Name = "chkStatus";
             this.chkStatus.Size = new System.Drawing.Size(132, 17);
             this.chkStatus.TabIndex = 6;
@@ -230,7 +239,7 @@
             this.errorPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.errorPanel.Controls.Add(this.errorIcon, 0, 0);
             this.errorPanel.Controls.Add(this.errorMessage, 1, 0);
-            this.errorPanel.Location = new System.Drawing.Point(3, 106);
+            this.errorPanel.Location = new System.Drawing.Point(3, 109);
             this.errorPanel.Name = "errorPanel";
             this.errorPanel.RowCount = 1;
             this.errorPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -266,7 +275,7 @@
             splitsGroup.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             splitsGroup.Controls.Add(this.splitsPanel);
             splitsGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            splitsGroup.Location = new System.Drawing.Point(0, 147);
+            splitsGroup.Location = new System.Drawing.Point(0, 150);
             splitsGroup.Margin = new System.Windows.Forms.Padding(0);
             splitsGroup.Name = "splitsGroup";
             splitsGroup.Size = new System.Drawing.Size(462, 32);
@@ -292,6 +301,48 @@
             this.splitsPanel.Size = new System.Drawing.Size(456, 0);
             this.splitsPanel.TabIndex = 1;
             // 
+            // delayPanel
+            // 
+            delayPanel.AutoSize = true;
+            delayPanel.Controls.Add(lblDelay);
+            delayPanel.Controls.Add(this.txtDelaySec);
+            delayPanel.Controls.Add(lblDelayUnits);
+            delayPanel.Location = new System.Drawing.Point(0, 80);
+            delayPanel.Margin = new System.Windows.Forms.Padding(0);
+            delayPanel.Name = "delayPanel";
+            delayPanel.Size = new System.Drawing.Size(178, 26);
+            delayPanel.TabIndex = 9;
+            // 
+            // txtDelaySec
+            // 
+            this.txtDelaySec.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDelaySec.Location = new System.Drawing.Point(102, 3);
+            this.txtDelaySec.Name = "txtDelaySec";
+            this.txtDelaySec.Size = new System.Drawing.Size(48, 20);
+            this.txtDelaySec.TabIndex = 7;
+            // 
+            // lblDelay
+            // 
+            lblDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            lblDelay.AutoSize = true;
+            lblDelay.Location = new System.Drawing.Point(62, 6);
+            lblDelay.Margin = new System.Windows.Forms.Padding(3, 3, 0, 0);
+            lblDelay.Name = "lblDelay";
+            lblDelay.Size = new System.Drawing.Size(37, 13);
+            lblDelay.TabIndex = 5;
+            lblDelay.Text = "Delay:";
+            // 
+            // lblDelayUnits
+            // 
+            lblDelayUnits.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            lblDelayUnits.AutoSize = true;
+            lblDelayUnits.Location = new System.Drawing.Point(154, 6);
+            lblDelayUnits.Margin = new System.Windows.Forms.Padding(3, 3, 0, 0);
+            lblDelayUnits.Name = "lblDelayUnits";
+            lblDelayUnits.Size = new System.Drawing.Size(24, 13);
+            lblDelayUnits.TabIndex = 8;
+            lblDelayUnits.Text = "sec";
+            // 
             // ComponentSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -302,7 +353,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "ComponentSettings";
             this.Padding = new System.Windows.Forms.Padding(7);
-            this.Size = new System.Drawing.Size(476, 193);
+            this.Size = new System.Drawing.Size(476, 196);
             mainPanel.ResumeLayout(false);
             mainPanel.PerformLayout();
             topPanel.ResumeLayout(false);
@@ -320,6 +371,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.errorIcon)).EndInit();
             splitsGroup.ResumeLayout(false);
             splitsGroup.PerformLayout();
+            delayPanel.ResumeLayout(false);
+            delayPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -334,5 +387,6 @@
         private System.Windows.Forms.Label errorMessage;
         private System.Windows.Forms.PictureBox errorIcon;
         private System.Windows.Forms.TableLayoutPanel splitsPanel;
-    }
+      private System.Windows.Forms.TextBox txtDelaySec;
+   }
 }

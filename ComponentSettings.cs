@@ -41,6 +41,7 @@ namespace LiveSplit.UI.Components
         private string _device = string.Empty;
         private bool _resetSNES = false;
         private bool _showStatusMessage = true;
+        private double _delaySec = 0.0;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -48,6 +49,12 @@ namespace LiveSplit.UI.Components
         {
             get => _device;
             set => SetAndNotifyIfChanged(ref _device, value);
+        }
+
+        public double DelaySec
+        {
+            get => _delaySec;
+            set => SetAndNotifyIfChanged (ref _delaySec, value);
         }
 
         public bool ResetSNES
@@ -140,7 +147,30 @@ namespace LiveSplit.UI.Components
             chkReset.DataBindings.Add(nameof(CheckBox.Checked), this, nameof(ResetSNES), false, DataSourceUpdateMode.OnPropertyChanged);
             chkStatus.DataBindings.Add(nameof(CheckBox.Checked), this, nameof(ShowStatusMessage), false, DataSourceUpdateMode.OnPropertyChanged);
 
-            UpdateConfigBinding();
+            Binding binding = new Binding(nameof(TextBox.Text), this, nameof(DelaySec), true, DataSourceUpdateMode.OnPropertyChanged);
+
+            // Add event handlers for parsing and formatting
+            binding.Parse += (sender, e) =>
+            {
+                if (double.TryParse(e.Value as string, out double result))
+                {
+                    e.Value = result;
+                }
+                else
+                {
+                    e.Value = 0.0; // Default value if parsing fails
+                }
+            };
+
+            binding.Format += (sender, e) =>
+            {
+                e.Value = ((double)e.Value).ToString(); // Convert double to string for display
+            };
+
+            // Add the binding to the TextBox's DataBindings collection
+            txtDelaySec.DataBindings.Add(binding);
+
+            UpdateConfigBinding ();
             PopulateSplitsPanel();
 
             errorIcon.Image = SystemIcons.Error.ToBitmap();
@@ -483,6 +513,7 @@ namespace LiveSplit.UI.Components
         {
             return SettingsHelper.CreateSetting(document, parent, "Version", 3) ^
             SettingsHelper.CreateSetting(document, parent, nameof(Device), Device) ^
+            SettingsHelper.CreateSetting (document, parent, nameof (DelaySec), DelaySec) ^
             SettingsHelper.CreateSetting(document, parent, nameof(ResetSNES), ResetSNES) ^
             SettingsHelper.CreateSetting(document, parent, nameof(ShowStatusMessage), ShowStatusMessage) ^
             CreateGamesSettingsNode(document, parent);
@@ -508,6 +539,7 @@ namespace LiveSplit.UI.Components
         private void LoadSettings_1(XmlElement settingsElement)
         {
             Device = SettingsHelper.ParseString(settingsElement[nameof(Device)]);
+            DelaySec = SettingsHelper.ParseDouble(settingsElement[nameof(DelaySec)]);
             ResetSNES = SettingsHelper.ParseBool(settingsElement[nameof(ResetSNES)]);
             ShowStatusMessage = false;
 
