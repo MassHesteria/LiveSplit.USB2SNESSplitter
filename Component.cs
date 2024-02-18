@@ -320,8 +320,8 @@ namespace LiveSplit.UI.Components
                 }
             }
 
-         await Task.Delay(TimeSpan.FromSeconds(_settings.DelaySec));
-         _model.Split();
+            await Task.Delay(TimeSpan.FromSeconds(_settings.DelaySec));
+            _model.Split();
         }
 
         private async Task DoStart()
