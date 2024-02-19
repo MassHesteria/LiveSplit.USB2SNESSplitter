@@ -10,15 +10,27 @@ namespace LiveSplit.UI.Components
 
         public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
         {
+            var autostart = LookupKeys(dictionary, "autostart");
+            var autostartList = new List<Autostart>();
+
+            if (autostart.GetType() == typeof(Dictionary<string, object>))
+            {
+                autostartList.Add(serializer.ConvertToType<Autostart>(autostart));
+            }
+            else
+            {
+                autostartList.AddRange(serializer.ConvertToType<List<Autostart>>(autostart));
+            }
+
             var game = new Game
             {
                 name = serializer.ConvertToType<string>(LookupKeys(dictionary, "name", "game")),
-                autostart = serializer.ConvertToType<Autostart>(LookupKeys(dictionary, "autostart")),
+                autostart = autostartList,
                 igt = serializer.ConvertToType<InGameTime>(LookupKeys(dictionary, "igt")),
                 alias = serializer.ConvertToType<Dictionary<string, string>>(LookupKeys(dictionary, "alias")),
                 definitions = serializer.ConvertToType<List<Split>>(LookupKeys(dictionary, "definitions")),
             };
-            game.autostart.GetSplit().validate();
+            game.autostart.ForEach(p => p.GetSplit().validate());
             if (game.definitions != null)
             {
                 foreach (var split in game.definitions)

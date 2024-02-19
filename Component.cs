@@ -372,11 +372,14 @@ namespace LiveSplit.UI.Components
                 _update_timer.Interval = 33;
                 if (_state.CurrentPhase == TimerPhase.NotRunning)
                 {
-                    if (_settings.Config.autostart != null && _settings.Config.autostart.active == "1")
+                    if (_settings.Config.autostart != null)
                     {
-                        if (await doCheckSplitWithNext(_settings.Config.autostart.GetSplit()))
+                        foreach (var autostart in _settings.Config.autostart.Where(p => p.active == "1"))
                         {
-                            await DoStart();
+                            if (await doCheckSplitWithNext(autostart.GetSplit()))
+                            {
+                                await DoStart();
+                            }
                         }
                     }
                 }
