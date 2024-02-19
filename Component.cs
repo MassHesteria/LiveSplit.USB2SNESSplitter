@@ -402,76 +402,33 @@ namespace LiveSplit.UI.Components
                 return await doCheckSplit(split);
             }
 
-            bool ok = false;
-            if (split.posToCheck > 0)
+            for (int i = split.posToCheck; i < split.next.Count() + 1; i++)
             {
-                ok = await doCheckSplit(split.next[split.posToCheck - 1]);
-            }
-            else
-            {
-                ok = await doCheckSplit(split);
-            }
-            if (ok)
-            {
-                if (split.posToCheck < split.next.Count())
+                var temp = i == 0 ? split : split.next[i - 1];
+                if (!await doCheckSplit(temp))
                 {
-                    split.posToCheck++;
-                    ok = false;
+                    return false;
                 }
-                else
-                {
-                    split.posToCheck = 0;
-                }
+                split.posToCheck++;
             }
-            return ok;
+
+            // Reset the position to check in case this split is used again
+            split.posToCheck = 0;
+            return true;
         }
 
         async Task<bool> doCheckSplit(Split split)
         {
-            var addressSizePairs = new List<Tuple<uint, uint>>();
-            addressSizePairs.Add(new Tuple<uint, uint>(split.addressInt, 2));
-            if (split.more != null)
-            {
-                foreach (var moreSplit in split.more)
-                {
-                    addressSizePairs.Add(new Tuple<uint, uint>(moreSplit.addressInt, 2));
-                }
-            }
-            List<byte[]> data = null;
             try
             {
-                data = await _usb2snes.GetAddress(addressSizePairs);
+                return split.check(await _usb2snes.GetAddress(split.addressSizePairs));
             }
-            catch
+            catch (Exception e)
             {
-                Debug.WriteLine("doCheckSplit: Exception getting address");
+                Debug.WriteLine($"doCheckSplit: {e.Message}");
                 CheckConnection();
                 return false;
             }
-
-            if ((null == data) || (data.Count != addressSizePairs.Count))
-            {
-                Debug.WriteLine("doCheckSplit: Get address failed to return result");
-                CheckConnection();
-                return false;
-            }
-
-            uint value = (uint)data[0][0];
-            uint word = value + ((uint)data[0][1] << 8);
-            bool result = split.check(value, word);
-            if (result && (split.more != null))
-            {
-                int dataIndex = 1;
-                foreach (var moreSplit in split.more)
-                {
-                    value = (uint)data[dataIndex][0];
-                    word = value + ((uint)data[dataIndex][1] << 8);
-                    if (!moreSplit.check(value, word))
-                        return false;
-                    dataIndex++;
-                }
-            }
-            return result;
         }
 
         public void DrawHorizontal(Graphics g, LiveSplitState state, float height, Region clipRegion)

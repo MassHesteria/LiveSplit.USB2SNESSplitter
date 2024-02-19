@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Web.Script.Serialization;
 
 namespace LiveSplit.UI.Components
 {
@@ -14,76 +13,51 @@ namespace LiveSplit.UI.Components
         public List<Split> more { get; set; }
         public List<Split> next { get; set; }
 
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public int posToCheck { get; set; } = 0;
+        [JsonIgnore]
+        public uint addressInt { get; set; } = 0;
+        [JsonIgnore]
+        public uint valueInt { get; set; } = 0;
+        [JsonIgnore]
+        public Func<byte[], bool> checkValue { get; set; }
+        [JsonIgnore]
+        public List<Tuple<uint, uint>> addressSizePairs { get; set; }
 
-        [JsonIgnoreAttribute]
-        public uint addressInt { get { if (address == "") return 0; return Convert.ToUInt32(address, 16); } }
-        [JsonIgnoreAttribute]
-        public uint valueInt
+        public bool check(List<byte[]> bytes)
         {
-            get
+            if (bytes == null || bytes.Count != addressSizePairs.Count)
             {
-                if (value == "")
-                    return 0;
-                try
-                {
-                    return Convert.ToUInt32(value, 16);
-                }
-                catch
-                {
-                    return 0;
-                }
+                throw new Exception("Incorrect number of bytes for split");
             }
-        }
 
-        public bool check(uint value, uint word)
-        {
-            bool ret = false;
-            switch (this.type)
+            if (!checkValue(bytes[0]))
             {
-                case "bit":
-                    if ((value & this.valueInt) != 0) { ret = true; }
-                    break;
-                case "eq":
-                    if (value == this.valueInt) { ret = true; }
-                    break;
-                case "gt":
-                    if (value > this.valueInt) { ret = true; }
-                    break;
-                case "lt":
-                    if (value < this.valueInt) { ret = true; }
-                    break;
-                case "gte":
-                    if (value >= this.valueInt) { ret = true; }
-                    break;
-                case "lte":
-                    if (value <= this.valueInt) { ret = true; }
-                    break;
-                case "wbit":
-                    if ((word & this.valueInt) != 0) { ret = true; }
-                    break;
-                case "weq":
-                    if (word == this.valueInt) { ret = true; }
-                    break;
-                case "wgt":
-                    if (word > this.valueInt) { ret = true; }
-                    break;
-                case "wlt":
-                    if (word < this.valueInt) { ret = true; }
-                    break;
-                case "wgte":
-                    if (word >= this.valueInt) { ret = true; }
-                    break;
-                case "wlte":
-                    if (word <= this.valueInt) { ret = true; }
-                    break;
+                return false;
             }
-            return ret;
+
+            if (more == null)
+            {
+                return true;
+            }
+
+            int dataIndex = 1;
+            foreach (var moreSplit in more)
+            {
+                if (!moreSplit.checkValue(bytes[dataIndex]))
+                    return false;
+                dataIndex++;
+            }
+
+            return true;
         }
 
         public void validate()
         {
+            addressInt = Convert.ToUInt32(address, 16) & 0xFFFF;
+            valueInt = Convert.ToUInt32(value, 16);
+            addressSizePairs = new List<Tuple<uint, uint>> { new Tuple<uint, uint>(addressInt, 2) };
+
             if (more != null)
             {
                 foreach (var moreSplit in more)
@@ -96,6 +70,8 @@ namespace LiveSplit.UI.Components
                     {
                         throw new NotSupportedException("Nested 'next' splits are not supported");
                     }
+                    moreSplit.validate();
+                    addressSizePairs.AddRange(moreSplit.addressSizePairs);
                 }
             }
             if (next != null)
@@ -109,7 +85,45 @@ namespace LiveSplit.UI.Components
                     nextSplit.validate();
                 }
             }
+
+            string operation;
+            Func<byte[], uint> data;
+            if (!type.StartsWith("w"))
+            {
+                data = (bytes) => bytes[0];
+                operation = type;
+                valueInt &= 0xFF;
+            }
+            else
+            {
+                data = (bytes) => (uint)((bytes[1] << 8) | bytes[0]);
+                operation = type.Substring(1);
+                valueInt &= 0xFFFF;
+            }
+
+            switch (operation)
+            {
+                case "bit":
+                    checkValue = (bytes) => (data(bytes) & this.valueInt) != 0;
+                    break;
+                case "eq":
+                    checkValue = (bytes) => data(bytes) == this.valueInt;
+                    break;
+                case "gt":
+                    checkValue = (bytes) => data(bytes) > this.valueInt;
+                    break;
+                case "lt":
+                    checkValue = (bytes) => data(bytes) < this.valueInt;
+                    break;
+                case "gte":
+                    checkValue = (bytes) => data(bytes) >= this.valueInt;
+                    break;
+                case "lte":
+                    checkValue = (bytes) => data(bytes) <= this.valueInt;
+                    break;
+                default:
+                    throw new NotSupportedException($"Unknown type: {type}");
+            }
         }
     }
 }
-
