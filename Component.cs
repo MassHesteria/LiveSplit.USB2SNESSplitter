@@ -300,6 +300,11 @@ namespace LiveSplit.UI.Components
                 catch
                 {
                     Debug.WriteLine("DoSplit: Exception getting address");
+
+                    // This means we could not get the data at the specified addresses
+                    // for the "in game time" so we will just split like normal including
+                    // adding delay if specified
+                    await Task.Delay(TimeSpan.FromSeconds(_settings.DelaySec));
                     _model.Split();
                     return;
                 }
